@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Binomial STV</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: lightblue;
+    }
+    .container-fluid{
+      margin:100px;
+    }
+    .formbold-main-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* padding: 48px; */
+      height: 100vh; /* Add this line to make the form occupy the full height of the viewport */
+    }
+  
+    .formbold-form-wrapper {
+      /* margin: 0 auto;
+      max-width: 550px;
+      width: 100%;
+      background: white; */
+
+      margin: 0 auto;
+      max-width: 550px;
+      width: 100%;
+      background: #F7F9FC; /* Change the background color */
+      padding: 20px; /* Add padding to create a space between the form and the outline */
+      border: 1px solid #E4E9F2; /* Add a border to create an outline */
+      border-radius: 5px; /* Add border-radius for rounded corners */
+    }
+  
+    .formbold-input-flex {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    .formbold-input-flex > div {
+      width: 50%;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+    .formbold-textarea {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+  
+    .formbold-form-input {
+      width: 100%;
+      padding-bottom: 10px;
+      border: none;
+      border-bottom: 1px solid #DDE3EC;
+      background: #FFFFFF;
+      font-weight: 500;
+      font-size: 16px;
+      color: #07074D;
+      outline: none;
+      resize: none;
+    }
+    .formbold-form-input::placeholder {
+      color: #536387;
+    }
+    .formbold-form-input:focus {
+      border-color: #6A64F1;
+    }
+    .formbold-form-label {
+      color: #07074D;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 24px;
+      display: block;
+      margin-bottom: 18px;
+    }
+    .formbold-form-input:focus + .formbold-form-label {
+      color: #6A64F1;
+    }
+  
+    .formbold-input-file {
+      margin-top: 30px;
+    }
+    .formbold-input-file input[type="file"] {
+      position: absolute;
+      top: 6px;
+      left: 0;
+      z-index: -1;
+    }
+    .formbold-input-file .formbold-input-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+  
+    .formbold-filename-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+    .formbold-filename {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      line-height: 24px;
+      color: #536387;
+    }
+    .formbold-filename svg {
+      cursor: pointer;
+    }
+  
+    .formbold-btn {
+      font-size: 16px;
+      border-radius: 5px;
+      padding: 12px 25px;
+      border: none;
+      font-weight: 500;
+      background-color: #6A64F1;
+      color: white;
+      cursor: pointer;
+      margin-top: 25px;
+    }
+    .formbold-btn:hover {
+      box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+    }
+  
+  </style>
+
+</head>
+<body>
+
+<div class="container-fluid">
+  
+  <div class="row">
+   <div class="col-sm-6 col-md-6" >
+      <div class="formbold-main-wrapper">
+        <div class="formbold-form-wrapper">
+          <form action="{% url 'stv_calculator' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+                <div class="formbold-input-flex">
+                  <div>
+                      <input
+                          type="text"
+                          name="candidates"
+                          id="candidates"
+                          placeholder="Enter candidates"
+                          class="formbold-form-input"
+                      />
+                      <label for="firstname" class="formbold-form-label">Candidates</label>
+                  </div>
+              </div>
+              <div class="formbold-input-flex">
+                  <div>
+                      <input
+                          type="number"
+                          name="num_seats"
+                          id="num_seats"
+                          placeholder="Enter number of seats"
+                          class="formbold-form-input"
+                      />
+                      <label for="num_seats" class="formbold-form-label">Number of Seats</label>
+                  </div>
+              </div>
+
+              <div class="formbold-input-flex">
+                <div>
+                    <textarea name="voter_choices" rows="10"
+                    id="voter_choices" 
+                    placeholder="Enter voter choices (one choice per line)" 
+                    class="formbold-form-input"></textarea>
+                    <label for="voter_choices" class="formbold-form-label">Voter Choices</label>
+                </div>
+              </div>  
+              <button class="formbold-btn">
+                  Check Result
+              </button>
+          </form>
+          <button class="formbold-btn" onclick="downloadSampleCSV()">Download Sample CSV</button>
+        </div>
+      </div>
+
+   </div>
+   <div class="col-sm-6 col-md-6" >
+    <p class="h4">
+      This is Binomial STV, which means that voters may exclude, as well as elect candidates, if they wish.<br/><br/>
+
+      There are as many available preferences as there are candidates. (The number of candidates, and therefore the number of preferences, is stated on the ballot paper.)<br/><br/>
+
+      If the voter prefers more candidates than there are seats, the preferences start to count against, not for, those candidates.<br/><br/>
+
+      (For example, if there are 12 candidates for 6 seats, preference 7 starts to count against a candidate. And a candidate, given preference 12 is as much an excluded candidate, as preference 1 is an elected candidate.)<br/><br/>
+
+      Abstentions, signified by a dash,-, count towards leaving a seat vacant. Any, and all, preferences (e.g. from 1 to 12) may be dashed.<br/><br/>
+
+      (Any candidate, who may receive both an elective quota, and an exclusive quota, has their exclusion or election determined by the Quotient of the exclusion quota to the election quota.)
+    </p>
+   </div>
+  </div>
+</div>
+
+
+<script>
+  function downloadSampleCSV() {
+      var link = document.createElement('a');
+      // link.href = 'https://drive.google.com/file/d/1SUTV_XlGnAQbctUVW0uEfsMa-Sxf9IyZ/view?usp=sharing';
+      link.href = 'https://drive.google.com/uc?export=download&id=1SUTV_XlGnAQbctUVW0uEfsMa-Sxf9IyZ';
+      link.download = 'sample.csv';
+      link.click();
+  }
+</script>
+   
+    
+</body>
+</html>
+
+
+
+
+
+
+
+

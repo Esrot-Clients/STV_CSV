@@ -1,0 +1,10 @@
+<form method="post" action="{% url 'stv_calculator' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="csv_file">CSV File:</label>
+    <input type="file" name="csv_file"><br><br>
+    <label for="candidates">Candidates:</label>
+    <input type="text" name="candidates" placeholder="Enter candidates"><br><br>
+    <label for="num_seats">Number of Seats:</label>
+    <input type="number" name="num_seats" placeholder="Enter number of seats"><br><br>
+    <input type="submit" value="Calculate STV">
+</form>

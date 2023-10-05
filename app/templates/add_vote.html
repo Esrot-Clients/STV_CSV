@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Vote</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/util.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    <div class="page-bg">
+        <div class="container ">
+            <div class="row p-4">
+                <div class="col-xxl-3 col-sm-6 mt-3">
+                    <div class="card card-height-100">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'add_vote' campaign.id %}"
+                                enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="campaign_name" value="{{ campaign.id }}">
+                                    <div class="formbold-input-flex">
+                                        <div>
+                                            <select name="candidates" id="candidates">
+                                                <option value="-">None</option>
+                                                {% for candidate_name in candidate_names %}
+                                                    <option value="{{ candidate_name }}">{{ candidate_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <br>
+                                            <label for="candidates" class="formbold-form-label">Select Your Preferences:</label>
+                                        </div>
+                                    </div>
+                                    <label>Preferences:</label>
+                                    <div id="preferences-container">
+                                        <!-- Preferences will be dynamically added here -->
+                                        <input type="hidden" name="preferences" id="preferences" value="">
+                                    </div>
+                                    <button class="formbold-btn" type="button" onclick="addPreference()">Add Preference</button><br>
+                                    <button class="formbold-btn" type="submit">Submit</button>
+
+                                    <!-- Error message section -->
+                                    <!-- {% if messages %}
+                                        <ul class="messages">
+                                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                        </ul>
+                                    {% endif %} -->
+                                    <!-- End of error message section -->
+                        </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-sm-6 mt-3">
+                    <div class="card card-height-100">
+                        <div class="card-body">
+                            <p class="h4">
+                                This is Binomial STV, which means that voters may exclude, as well as elect candidates, if they wish.<br/><br/>
+                        
+                                There are as many available preferences as there are candidates. (The number of candidates, and therefore the number of preferences, is stated on the ballot paper.)<br/><br/>
+                        
+                                If the voter prefers more candidates than there are seats, the preferences start to count against, not for, those candidates.<br/><br/>
+                        
+                                (For example, if there are 12 candidates for 6 seats, preference 7 starts to count against a candidate. And a candidate, given preference 12 is as much an excluded candidate, as preference 1 is an elected candidate.)<br/><br/>
+                        
+                                Abstentions, signified by a dash,-, count towards leaving a seat vacant. Any, and all, preferences (e.g. from 1 to 12) may be dashed.<br/><br/>
+                        
+                                (Any candidate, who may receive both an elective quota, and an exclusive quota, has their exclusion or election determined by the Quotient of the exclusion quota to the election quota.)
+                                </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// JavaScript code for adding and removing preferences dynamically
+function addPreference() {
+    const candidatesDropdown = document.getElementById('candidates');
+    const selectedCandidate = candidatesDropdown.value;
+
+    const preferencesContainer = document.getElementById('preferences-container');
+    const hiddenInput = document.getElementById('preferences'); // Get the hidden input field
+
+    // Create a preference item
+    const preferenceItem = document.createElement('div');
+    preferenceItem.classList.add('preference-item');
+
+    // Display the selected candidate or "-"
+    const preferenceText = document.createElement('span');
+    preferenceText.textContent = selectedCandidate === '-' ? '-' : selectedCandidate;
+
+    // Add a remove button
+    const removeButton = document.createElement('span');
+    removeButton.textContent = 'Remove';
+    removeButton.classList.add('remove-preference');
+    removeButton.addEventListener('click', function () {
+        preferencesContainer.removeChild(preferenceItem);
+        updateHiddenInput(); // Update the hidden input when removing a preference
+    });
+
+    // Append the preference item to the container
+    preferenceItem.appendChild(preferenceText);
+    preferenceItem.appendChild(removeButton);
+    preferencesContainer.appendChild(preferenceItem);
+
+    // Clear the selection in the candidates dropdown
+    candidatesDropdown.value = '-';
+
+    // Update the hidden input with all selected preferences
+    updateHiddenInput();
+
+    function updateHiddenInput() {
+        const selectedPreferences = Array.from(preferencesContainer.querySelectorAll('.preference-item'))
+            .map(item => item.firstChild.textContent) // Get the candidate text
+            .join(', '); // Join preferences with commas
+
+        hiddenInput.value = selectedPreferences;
+    }
+}
+</script>
+
+</body>
+</html>
